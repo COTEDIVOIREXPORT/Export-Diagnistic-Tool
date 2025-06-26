@@ -1,0 +1,2949 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Tool Pro v3.1 - Évaluation des Capacités Export</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            color: #228B22;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid #228B22;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 120px;
+            height: auto;
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #228B22;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #2E8B57;
+            font-weight: 500;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: flex-start;
+            gap: 0;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #e0e0e0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px 15px 0 0;
+            padding: 0;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 15px 15px 0 0;
+            border: 2px solid #e0e0e0;
+            border-bottom: none;
+            margin-right: 2px;
+            position: relative;
+            white-space: nowrap;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            color: white;
+            border-color: #1a73e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+            z-index: 10;
+        }
+
+        .nav-btn.reset-btn {
+            background: linear-gradient(135deg, #ea4335, #ff6b6b);
+            color: white;
+            margin-left: auto;
+            margin-right: 0;
+            border-color: #ea4335;
+        }
+
+        .nav-btn.reset-btn:hover {
+            background: linear-gradient(135deg, #d32f2f, #ea4335);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.3);
+        }
+
+        .nav-btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+            background: linear-gradient(135deg, #ff9900, #ffb74d);
+            color: white;
+            border-color: #ff9900;
+        }
+
+        /* Barre de chargement */
+        .loading-container {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .loading-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .loading-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        .loading-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1a73e8, #4285f4, #34a853, #ff9900);
+            background-size: 300% 100%;
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: gradientShift 2s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .loading-percentage {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-top: 15px;
+        }
+
+        .loading-steps {
+            text-align: left;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .loading-step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .loading-step.completed {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .loading-step.active {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1a73e8;
+        }
+
+        .loading-step-icon {
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50%;
+            border-top-color: #1a73e8;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #34a853, #4caf50);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 168, 83, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.4);
+        }
+
+        .question-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid #1a73e8;
+        }
+
+        .question-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .score-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .score-btn {
+            padding: 10px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .score-btn:hover {
+            border-color: #1a73e8;
+            background: #e3f2fd;
+        }
+
+        .score-btn.selected {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        .dimension-header {
+            background: linear-gradient(135deg, #ff9900, #ff6d01);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 30px 0 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #34a853, #4caf50);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .results-header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #34a853, #4caf50);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .dimension-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid #1a73e8;
+        }
+
+        .dimension-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .dimension-score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        .dimension-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .dimension-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 5px solid;
+        }
+
+        .alert-success {
+            background: #e8f5e8;
+            border-color: #34a853;
+            color: #2e7d32;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            border-color: #ff9900;
+            color: #ef6c00;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            border-color: #ea4335;
+            color: #c62828;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid #1a73e8;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .detailed-diagnosis {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .diagnosis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .multi-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .multi-select-display {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .multi-select-display:focus,
+        .multi-select-display.active {
+            border-color: #228B22;
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+        }
+
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #228B22;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .multi-select-dropdown.active {
+            display: block;
+        }
+
+        .multi-select-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .multi-select-option:hover {
+            background: #f0f8f0;
+        }
+
+        .multi-select-option input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .selected-countries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-width: calc(100% - 30px);
+        }
+
+        .country-tag {
+            background: #228B22;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .country-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        .diagnosis-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detailed-professional-diagnosis {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .detailed-professional-diagnosis h4 {
+            margin: 20px 0 15px 0;
+        }
+
+        .detailed-professional-diagnosis h5 {
+            margin: 15px 0 10px 0;
+        }
+
+        .detailed-professional-diagnosis h6 {
+            margin: 10px 0 8px 0;
+        }
+
+        .detailed-professional-diagnosis ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .detailed-professional-diagnosis li {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+
+        .country-profile, .trade-agreements, .company-diagnosis, 
+        .strategic-recommendations, .risk-assessment, .action-plan {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .diagnosis-header {
+            box-shadow: 0 4px 12px rgba(34, 139, 34, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .header-logo {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+                align-self: center;
+            }
+            
+            .header-logo img {
+                width: 100px !important;
+                max-height: 50px !important;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation {
+                overflow-x: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #1a73e8 #f8f9fa;
+            }
+            
+            .navigation::-webkit-scrollbar {
+                height: 4px;
+            }
+            
+            .navigation::-webkit-scrollbar-track {
+                background: #f8f9fa;
+            }
+            
+            .navigation::-webkit-scrollbar-thumb {
+                background: #1a73e8;
+                border-radius: 2px;
+            }
+            
+            .nav-btn {
+                min-width: 140px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            
+            .nav-btn.reset-btn {
+                margin-left: 10px;
+            }
+            
+            .score-buttons {
+                justify-content: center;
+            }
+            
+            .dimension-scores {
+                grid-template-columns: 1fr;
+            }
+            
+            .loading-steps {
+                padding: 15px;
+            }
+            
+            .loading-step {
+                font-size: 14px;
+                padding: 6px;
+            }
+            
+            .diagnosis-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-logo">
+                <img src="https://cotedivoirexport.ci/wp-content/uploads/2024/03/LOGO-CI-EXPORT-1.png" 
+                     alt="Côte d'Ivoire Export" 
+                     style="width: 120px; height: auto; max-height: 60px; object-fit: contain;">
+            </div>
+            <div class="header-content">
+                <h1>🔍 Outil de Diagnostic Export</h1>
+                <p>Évaluation Professionnelle des Capacités Export</p>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <button class="nav-btn active" onclick="showSection('company')">
+                🏢 Informations Entreprise
+            </button>
+            <button class="nav-btn" onclick="showSection('evaluation')">
+                📋 Évaluation (50 Questions)
+            </button>
+            <button class="nav-btn" onclick="showSectionWithLoading('results')" id="resultsTab">
+                📊 Résultats & Analyse
+            </button>
+            <button class="nav-btn" onclick="showSectionWithLoading('detailed-diagnosis')" id="detailedDiagnosisTab">
+                🎯 Diagnostic Détaillé
+            </button>
+            <button class="nav-btn" onclick="showSection('history')">
+                📚 Historique
+            </button>
+            <button class="nav-btn reset-btn" onclick="resetApplication()">
+                🔄 Réinitialiser
+            </button>
+        </nav>
+
+        <!-- Conteneur de chargement -->
+        <div id="loadingContainer" class="loading-container">
+            <div class="loading-title">🔍 Analyse Approfondie en Cours</div>
+            <div class="loading-subtitle">Génération de votre rapport détaillé...</div>
+            
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+            <div class="loading-percentage" id="loadingPercentage">0%</div>
+            
+            <div class="loading-steps">
+                <div class="loading-step" id="step1">
+                    <span class="loading-step-icon">⏳</span>
+                    <span>Calcul des scores pondérés par dimension</span>
+                </div>
+                <div class="loading-step" id="step2">
+                    <span class="loading-step-icon">⏳</span>
+                    <span>Analyse des interdépendances et goulots d'étranglement</span>
+                </div>
+                <div class="loading-step" id="step3">
+                    <span class="loading-step-icon">⏳</span>
+                    <span>Génération des recommandations stratégiques</span>
+                </div>
+                <div class="loading-step" id="step4">
+                    <span class="loading-step-icon">⏳</span>
+                    <span>Élaboration du plan d'action personnalisé</span>
+                </div>
+                <div class="loading-step" id="step5">
+                    <span class="loading-step-icon">⏳</span>
+                    <span>Finalisation du rapport d'analyse</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Section Informations Entreprise -->
+            <div id="company" class="section active">
+                <h2>🏢 Informations de l'Entreprise</h2>
+                <form id="companyForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companyName">Nom de l'entreprise *</label>
+                            <input type="text" id="companyName" name="companyName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sector">Secteur d'activité *</label>
+                            <select id="sector" name="sector" required>
+                                <option value="">Sélectionnez votre secteur</option>
+                                <option value="Agro-alimentaire">Agro-alimentaire</option>
+                                <option value="Technologie">Technologie</option>
+                                <option value="Textile">Textile</option>
+                                <option value="Pharmaceutique">Pharmaceutique</option>
+                                <option value="Artisanat">Artisanat</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="employees">Nombre d'employés</label>
+                            <select id="employees" name="employees">
+                                <option value="">Sélectionnez</option>
+                                <option value="1-9">1-9 employés</option>
+                                <option value="10-49">10-49 employés</option>
+                                <option value="50-249">50-249 employés</option>
+                                <option value="250+">250+ employés</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="revenue">Chiffre d'affaires annuel (FCFA)</label>
+                            <select id="revenue" name="revenue">
+                                <option value="">Sélectionnez</option>
+                                <option value="< 100M">Moins de 100 millions</option>
+                                <option value="100M-500M">100M - 500M FCFA</option>
+                                <option value="500M-1B">500M - 1 milliard</option>
+                                <option value="1B-5B">1B - 5 milliards</option>
+                                <option value="5B+">Plus de 5 milliards</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="country">Pays du siège social</label>
+                            <select id="country" name="country">
+                                <option value="">Sélectionnez</option>
+                                <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                                <option value="Sénégal">Sénégal</option>
+                                <option value="Ghana">Ghana</option>
+                                <option value="Mali">Mali</option>
+                                <option value="Burkina Faso">Burkina Faso</option>
+                                <option value="Niger">Niger</option>
+                                <option value="Togo">Togo</option>
+                                <option value="Bénin">Bénin</option>
+                                <option value="Cameroun">Cameroun</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email de contact</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentMarkets">Marchés actuels *</label>
+                        <div class="multi-select" id="currentMarketsSelect">
+                            <div class="multi-select-display" onclick="toggleDropdown('currentMarkets')">
+                                <div class="selected-countries" id="currentMarketsDisplay">
+                                    <span style="color: #999;">Sélectionnez vos marchés actuels</span>
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="currentMarketsDropdown">
+                                <!-- Options will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="targetMarkets">Marché cible prioritaire pour l'export *</label>
+                        <select id="targetMarkets" name="targetMarkets" required>
+                            <option value="">Sélectionnez votre marché cible prioritaire</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="nextCompanySection()">
+                        Suivant - Évaluation ➡️
+                    </button>
+                </form>
+            </div>
+
+            <!-- Section Évaluation -->
+            <div id="evaluation" class="section">
+                <h2>📋 Évaluation des Capacités (50 Questions)</h2>
+                
+                <div class="progress-container">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0/50 questions complétées</div>
+
+                <div id="questionsContainer"></div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-primary" onclick="calculateResults()">
+                        📊 Calculer les Résultats
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section Résultats -->
+            <div id="results" class="section">
+                <div id="resultsContainer">
+                    <div class="alert alert-warning">
+                        <strong>Aucun résultat disponible.</strong><br>
+                        Veuillez d'abord compléter l'évaluation dans l'onglet "Évaluation".
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Diagnostic Détaillé -->
+            <div id="detailed-diagnosis" class="section">
+                <div id="detailedDiagnosisContainer">
+                    <div class="alert alert-warning">
+                        <strong>Aucun diagnostic détaillé disponible.</strong><br>
+                        Veuillez d'abord compléter l'évaluation et sélectionner un marché cible.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Historique -->
+            <div id="history" class="section">
+                <h2>📚 Historique des Évaluations</h2>
+                <div id="historyContainer">
+                    <div class="alert alert-warning">
+                        <strong>Aucun historique disponible.</strong><br>
+                        Vos évaluations apparaîtront ici une fois que vous aurez calculé vos premiers résultats.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentData = {
+            company: {},
+            scores: {},
+            results: null
+        };
+
+        // Listes des pays
+        const africaCountries = [
+            'Bénin', 'Burkina Faso', 'Cameroun', 'Cap-Vert', 'Côte d\'Ivoire', 'Gabon', 'Gambie', 
+            'Ghana', 'Guinée', 'Guinée-Bissau', 'Guinée Équatoriale', 'Liberia', 'Mali', 
+            'Mauritanie', 'Niger', 'Nigeria', 'République Centrafricaine', 'République Démocratique du Congo',
+            'République du Congo', 'Sénégal', 'Sierra Leone', 'Tchad', 'Togo',
+            'Afrique du Sud', 'Algérie', 'Angola', 'Botswana', 'Burundi', 'Comores', 'Djibouti',
+            'Égypte', 'Érythrée', 'Eswatini', 'Éthiopie', 'Kenya', 'Lesotho', 'Libye',
+            'Madagascar', 'Malawi', 'Maroc', 'Maurice', 'Mozambique', 'Namibie', 'Ouganda',
+            'Rwanda', 'São Tomé-et-Principe', 'Seychelles', 'Somalie', 'Soudan', 'Soudan du Sud',
+            'Tanzanie', 'Tunisie', 'Zambie', 'Zimbabwe'
+        ];
+
+        const exportCountries = [
+            // Europe
+            'France', 'Allemagne', 'Italie', 'Espagne', 'Pays-Bas', 'Belgique', 'Royaume-Uni',
+            'Suisse', 'Autriche', 'Portugal', 'Suède', 'Norvège', 'Danemark', 'Finlande',
+            'Pologne', 'République Tchèque', 'Hongrie', 'Grèce', 'Irlande', 'Roumanie',
+            
+            // Amérique du Nord
+            'États-Unis', 'Canada', 'Mexique',
+            
+            // Amérique du Sud
+            'Brésil', 'Argentine', 'Chili', 'Colombie', 'Pérou', 'Venezuela', 'Uruguay',
+            
+            // Asie
+            'Chine', 'Japon', 'Inde', 'Corée du Sud', 'Singapour', 'Malaisie', 'Thaïlande',
+            'Indonésie', 'Philippines', 'Vietnam', 'Bangladesh', 'Pakistan', 'Sri Lanka',
+            'Émirats Arabes Unis', 'Arabie Saoudite', 'Qatar', 'Koweït', 'Bahreïn', 'Oman',
+            'Israël', 'Turquie', 'Iran', 'Irak', 'Jordanie', 'Liban', 'Syrie',
+            
+            // Océanie
+            'Australie', 'Nouvelle-Zélande',
+            
+            // Pays africains (pour les marchés cibles aussi)
+            ...africaCountries
+        ];
+
+        // Fonctions pour les multi-select et select simple
+        function initializeMultiSelects() {
+            populateDropdown('currentMarkets', africaCountries);
+            populateTargetMarketsSelect();
+        }
+
+        function populateTargetMarketsSelect() {
+            const select = document.getElementById('targetMarkets');
+            select.innerHTML = '<option value="">Sélectionnez votre marché cible prioritaire</option>';
+            
+            exportCountries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                select.appendChild(option);
+            });
+        }
+
+        // Base de données des profils économiques des pays
+        const countryProfiles = {
+            'France': {
+                economicProfile: {
+                    pib: '2 937 milliards USD',
+                    pibParHabitant: '43 518 USD',
+                    croissance: '2.6% (2023)',
+                    inflation: '4.9% (2023)',
+                    population: '68 millions',
+                    monnaie: 'Euro (EUR)',
+                    principauxSecteurs: ['Services (70%)', 'Industrie (19%)', 'Agriculture (2%)'],
+                    importationsCI: '2.8 milliards USD',
+                    principalesImportations: ['Cacao et produits dérivés', 'Café', 'Fruits tropicaux', 'Huile de palme', 'Caoutchouc'],
+                    faciliteAffaires: 'Rang 32/190 (Doing Business)',
+                    risquePays: 'AA (Très faible risque)'
+                },
+                agreements: {
+                    bilateral: [
+                        'Accord de Partenariat Économique UE-Afrique de l\'Ouest (2016)',
+                        'Convention fiscale franco-ivoirienne (1966, révisée 2018)',
+                        'Accord de protection des investissements (1965)'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Accord de Cotonou UE-ACP',
+                        'Initiative "Tout sauf les armes" de l\'UE',
+                        'Système de Préférences Généralisées Plus (SPG+)'
+                    ],
+                    preferences: [
+                        'Accès préférentiel pour 7 200+ produits sous SPG+',
+                        'Droits de douane 0% sur la plupart des produits agricoles',
+                        'Contingents tarifaires favorables pour certains produits'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'Procédures douanières dématérialisées via DELTA',
+                    certifications: ['Certificats phytosanitaires', 'Normes UE', 'Certification bio EU'],
+                    barriers: ['Normes sanitaires strictes', 'Traçabilité obligatoire', 'Étiquetage spécifique'],
+                    distribution: ['Grande distribution (60%)', 'Commerce spécialisé (25%)', 'E-commerce (15%)']
+                }
+            },
+            'Allemagne': {
+                economicProfile: {
+                    pib: '4 456 milliards USD',
+                    pibParHabitant: '53 291 USD',
+                    croissance: '1.8% (2023)',
+                    inflation: '6.1% (2023)',
+                    population: '84 millions',
+                    monnaie: 'Euro (EUR)',
+                    principauxSecteurs: ['Services (69%)', 'Industrie (30%)', 'Agriculture (1%)'],
+                    importationsCI: '1.2 milliards USD',
+                    principalesImportations: ['Cacao brut', 'Café', 'Noix de cajou', 'Caoutchouc naturel'],
+                    faciliteAffaires: 'Rang 22/190 (Doing Business)',
+                    risquePays: 'AAA (Risque minimal)'
+                },
+                agreements: {
+                    bilateral: [
+                        'Accord de Partenariat Économique UE-Afrique de l\'Ouest (2016)',
+                        'Accord de coopération technique et financière (1975)',
+                        'Protocole d\'accord sur la coopération économique (2019)'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Accord de Cotonou UE-ACP',
+                        'Initiative "Tout sauf les armes" de l\'UE',
+                        'Compact with Africa (G20)'
+                    ],
+                    preferences: [
+                        'Accès libre pour produits sous APE',
+                        'Réductions tarifaires substantielles',
+                        'Facilitations douanières'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'Système ATLAS pour les déclarations douanières',
+                    certifications: ['CE marking', 'Certification bio DE-ÖKO', 'HACCP'],
+                    barriers: ['Normes DIN strictes', 'Tests de qualité obligatoires', 'Documentation en allemand'],
+                    distribution: ['Grossistes spécialisés (45%)', 'Retail chains (35%)', 'Import direct (20%)']
+                }
+            },
+            'États-Unis': {
+                economicProfile: {
+                    pib: '26 949 milliards USD',
+                    pibParHabitant: '80 412 USD',
+                    croissance: '2.1% (2023)',
+                    inflation: '3.2% (2023)',
+                    population: '335 millions',
+                    monnaie: 'Dollar US (USD)',
+                    principauxSecteurs: ['Services (77%)', 'Industrie (20%)', 'Agriculture (1%)'],
+                    importationsCI: '890 millions USD',
+                    principalesImportations: ['Cacao et préparations', 'Noix de cajou', 'Café', 'Caoutchouc'],
+                    faciliteAffaires: 'Rang 6/190 (Doing Business)',
+                    risquePays: 'AAA (Risque minimal)'
+                },
+                agreements: {
+                    bilateral: [
+                        'Trade and Investment Framework Agreement (2018)',
+                        'Bilateral Investment Treaty (en négociation)',
+                        'African Growth and Opportunity Act (AGOA)'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Prosper Africa Initiative',
+                        'Power Africa Initiative'
+                    ],
+                    preferences: [
+                        'Accès libre sous AGOA pour 6 400+ produits',
+                        'Quotas préférentiels textiles',
+                        'Élimination droits de douane sur matières premières'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'Automated Commercial Environment (ACE)',
+                    certifications: ['FDA approval', 'USDA certification', 'Fair Trade certification'],
+                    barriers: ['Réglementations FDA strictes', 'Bioterrorism Act', 'Country of Origin labeling'],
+                    distribution: ['Importateurs spécialisés (50%)', 'Chaînes retail (30%)', 'Distributeurs régionaux (20%)']
+                }
+            },
+            'Italie': {
+                economicProfile: {
+                    pib: '2 107 milliards USD',
+                    pibParHabitant: '35 551 USD',
+                    croissance: '3.7% (2023)',
+                    inflation: '5.7% (2023)',
+                    population: '59.1 millions',
+                    monnaie: 'Euro (EUR)',
+                    principauxSecteurs: ['Services (73%)', 'Industrie (24%)', 'Agriculture (2%)'],
+                    importationsCI: '650 millions USD',
+                    principalesImportations: ['Cacao brut', 'Café robusta', 'Fruits tropicaux', 'Huiles végétales'],
+                    faciliteAffaires: 'Rang 58/190 (Doing Business)',
+                    risquePays: 'BBB (Risque modéré)'
+                },
+                agreements: {
+                    bilateral: [
+                        'Accord de Partenariat Économique UE-Afrique de l\'Ouest (2016)',
+                        'Accord de coopération économique italo-ivoirien (2008)',
+                        'Mémorandum d\'entente sur les investissements (2019)'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Accord de Cotonou UE-ACP',
+                        'Initiative "Tout sauf les armes" de l\'UE'
+                    ],
+                    preferences: [
+                        'Accès préférentiel UE pour produits agricoles',
+                        'Droits de douane réduits sous APE',
+                        'Facilitations pour produits artisanaux'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'Système douanier AIDA connecté à l\'UE',
+                    certifications: ['CE marking', 'Certification bio IT-BIO', 'DOP/IGP pour produits premium'],
+                    barriers: ['Normes UE strictes', 'Préférence consommateurs "Made in Italy"', 'Réseaux distribution fermés'],
+                    distribution: ['Importateurs traditionnels (40%)', 'GDO moderne (35%)', 'Circuits spécialisés (25%)']
+                }
+            },
+            'Espagne': {
+                economicProfile: {
+                    pib: '1 419 milliards USD',
+                    pibParHabitant: '29 565 USD',
+                    croissance: '5.1% (2023)',
+                    inflation: '3.5% (2023)',
+                    population: '47.4 millions',
+                    monnaie: 'Euro (EUR)',
+                    principauxSecteurs: ['Services (75%)', 'Industrie (20%)', 'Agriculture (3%)'],
+                    importationsCI: '420 millions USD',
+                    principalesImportations: ['Cacao', 'Café', 'Ananas', 'Bananes', 'Noix de coco'],
+                    faciliteAffaires: 'Rang 30/190 (Doing Business)',
+                    risquePays: 'A (Faible risque)'
+                },
+                agreements: {
+                    bilateral: [
+                        'Accord de Partenariat Économique UE-Afrique de l\'Ouest (2016)',
+                        'Accord de coopération hispano-ivoirien (2006)',
+                        'Plan Africa 2023-2026 (coopération renforcée)'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Accord de Cotonou UE-ACP',
+                        'Initiative ibéro-africaine de coopération'
+                    ],
+                    preferences: [
+                        'Tarifs préférentiels UE',
+                        'Accès facilité pour produits tropicaux',
+                        'Programmes de coopération technique'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'TARIC (système tarifaire intégré UE)',
+                    certifications: ['Normes UE', 'Certification bio ES-ECO', 'Commerce équitable'],
+                    barriers: ['Concurrence latino-américaine forte', 'Saisonnalité importante', 'Standards qualité élevés'],
+                    distribution: ['Grandes surfaces (50%)', 'Marchés traditionnels (30%)', 'Import spécialisé (20%)']
+                }
+            },
+            'Royaume-Uni': {
+                economicProfile: {
+                    pib: '3 131 milliards USD',
+                    pibParHabitant: '46 125 USD',
+                    croissance: '4.1% (2023)',
+                    inflation: '7.9% (2023)',
+                    population: '67.5 millions',
+                    monnaie: 'Livre Sterling (GBP)',
+                    principauxSecteurs: ['Services (79%)', 'Industrie (17%)', 'Agriculture (1%)'],
+                    importationsCI: '1.1 milliards USD',
+                    principalesImportations: ['Cacao brut', 'Café', 'Fruits tropicaux', 'Huile de palme', 'Caoutchouc'],
+                    faciliteAffaires: 'Rang 8/190 (Doing Business)',
+                    risquePays: 'AA (Très faible risque)'
+                },
+                agreements: {
+                    bilateral: [
+                        'UK-ECOWAS Economic Partnership Agreement (2023)',
+                        'UK-Côte d\'Ivoire Trade Partnership (post-Brexit)',
+                        'Commonwealth Trade Advantage Scheme'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Commonwealth Preferential Trade Agreement',
+                        'UK Generalised Scheme of Preferences'
+                    ],
+                    preferences: [
+                        'Accès préférentiel sous UK GSP',
+                        'Droits de douane 0% pour produits agricoles bruts',
+                        'Facilitations commerciales Commonwealth'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'CHIEF (Customs Handling of Import and Export Freight)',
+                    certifications: ['UKCA marking', 'Organic certification UK', 'Red Tractor assurance'],
+                    barriers: ['Post-Brexit complexities', 'Nouveaux contrôles frontaliers', 'Documentation supplémentaire'],
+                    distribution: ['Supermarchés (65%)', 'Cash & carry (20%)', 'Spécialistes import (15%)']
+                }
+            },
+            'Canada': {
+                economicProfile: {
+                    pib: '2 140 milliards USD',
+                    pibParHabitant: '55 678 USD',
+                    croissance: '3.4% (2023)',
+                    inflation: '3.9% (2023)',
+                    population: '38.2 millions',
+                    monnaie: 'Dollar Canadien (CAD)',
+                    principauxSecteurs: ['Services (71%)', 'Industrie (27%)', 'Agriculture (2%)'],
+                    importationsCI: '145 millions USD',
+                    principalesImportations: ['Cacao', 'Café', 'Noix de cajou', 'Fruits tropicaux'],
+                    faciliteAffaires: 'Rang 23/190 (Doing Business)',
+                    risquePays: 'AAA (Risque minimal)'
+                },
+                agreements: {
+                    bilateral: [
+                        'Canada-ECOWAS Trade and Investment Agreement (2020)',
+                        'Foreign Investment Promotion and Protection Agreement',
+                        'Development Cooperation Framework'
+                    ],
+                    multilateral: [
+                        'Organisation Mondiale du Commerce (OMC)',
+                        'Commonwealth Trade Agreement',
+                        'Francophonie Economic Cooperation'
+                    ],
+                    preferences: [
+                        'Least Developed Countries Tariff (LDCT)',
+                        'General Preferential Tariff (GPT)',
+                        'Facilitations pour pays francophones'
+                    ]
+                },
+                marketAccess: {
+                    procedures: 'Single Window Initiative (guichet unique)',
+                    certifications: ['CFIA certification', 'Organic Product Regulations', 'Canada Organic Logo'],
+                    barriers: ['Réglementations bilingues obligatoires', 'Standards sanitaires stricts', 'Climat défavorable certains produits'],
+                    distribution: ['Chaînes nationales (55%)', 'Distributeurs ethniques (25%)', 'Épiceries fines (20%)']
+                }
+            }
+            // Ajouter d'autres pays selon les besoins
+        };
+
+        function populateDropdown(selectId, countries) {
+            const dropdown = document.getElementById(selectId + 'Dropdown');
+            dropdown.innerHTML = '';
+            
+            countries.forEach(country => {
+                const option = document.createElement('div');
+                option.className = 'multi-select-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="${selectId}_${country}" value="${country}" 
+                           onchange="updateSelection('${selectId}', '${country}')">
+                    <label for="${selectId}_${country}">${country}</label>
+                `;
+                dropdown.appendChild(option);
+            });
+        }
+
+        function toggleDropdown(selectId) {
+            if (selectId === 'targetMarkets') return; // Pas de dropdown pour le select simple
+            
+            const dropdown = document.getElementById(selectId + 'Dropdown');
+            const display = document.querySelector(`#${selectId}Select .multi-select-display`);
+            const arrow = display.querySelector('.dropdown-arrow');
+            
+            // Fermer tous les autres dropdowns
+            document.querySelectorAll('.multi-select-dropdown').forEach(dd => {
+                if (dd.id !== selectId + 'Dropdown') {
+                    dd.classList.remove('active');
+                }
+            });
+            
+            document.querySelectorAll('.multi-select-display').forEach(dd => {
+                if (dd !== display) {
+                    dd.classList.remove('active');
+                    dd.querySelector('.dropdown-arrow').classList.remove('rotated');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdown.classList.toggle('active');
+            display.classList.toggle('active');
+            arrow.classList.toggle('rotated');
+        }
+
+        function updateSelection(selectId, country) {
+            if (selectId === 'targetMarkets') return; // Géré par le select simple
+            
+            const checkbox = document.getElementById(`${selectId}_${country}`);
+            const display = document.getElementById(selectId + 'Display');
+            
+            if (!currentData.company[selectId]) {
+                currentData.company[selectId] = [];
+            }
+            
+            if (checkbox.checked) {
+                if (!currentData.company[selectId].includes(country)) {
+                    currentData.company[selectId].push(country);
+                }
+            } else {
+                currentData.company[selectId] = currentData.company[selectId].filter(c => c !== country);
+            }
+            
+            updateDisplaySelection(selectId);
+            saveToStorage();
+        }
+
+        function updateDisplaySelection(selectId) {
+            if (selectId === 'targetMarkets') return; // Géré par le select simple
+            
+            const display = document.getElementById(selectId + 'Display');
+            const selected = currentData.company[selectId] || [];
+            
+            if (selected.length === 0) {
+                const placeholder = 'Sélectionnez vos marchés actuels';
+                display.innerHTML = `<span style="color: #999;">${placeholder}</span>`;
+            } else {
+                display.innerHTML = selected.map(country => 
+                    `<span class="country-tag">${country} <span class="remove" onclick="removeCountry('${selectId}', '${country}')">×</span></span>`
+                ).join('');
+            }
+        }
+
+        function removeCountry(selectId, country) {
+            if (selectId === 'targetMarkets') return; // Géré par le select simple
+            
+            const checkbox = document.getElementById(`${selectId}_${country}`);
+            if (checkbox) checkbox.checked = false;
+            
+            currentData.company[selectId] = currentData.company[selectId].filter(c => c !== country);
+            updateDisplaySelection(selectId);
+            saveToStorage();
+        }
+
+        // Générer le diagnostic détaillé professionnel
+        function generateDetailedDiagnosis() {
+            const results = currentData.results;
+            const company = currentData.company;
+            const targetCountry = company.targetMarkets;
+            
+            if (!results || !targetCountry) {
+                return `
+                    <div class="alert alert-warning">
+                        <strong>Diagnostic indisponible.</strong><br>
+                        Veuillez compléter l'évaluation et sélectionner un marché cible prioritaire.
+                    </div>
+                `;
+            }
+            
+            const countryData = countryProfiles[targetCountry];
+            if (!countryData) {
+                return generateGenericDetailedDiagnosis(results, company, targetCountry);
+            }
+            
+            return `
+                <div class="detailed-professional-diagnosis">
+                    <div class="diagnosis-header" style="background: linear-gradient(135deg, #228B22, #2E8B57); color: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
+                        <h2>📊 DIAGNOSTIC STRATÉGIQUE EXPORT</h2>
+                        <h3>${company.companyName} → ${targetCountry}</h3>
+                        <div style="font-size: 1.1em; margin-top: 15px;">
+                            Score de maturité export : <strong>${results.adjustedScore}% (${results.level})</strong>
+                        </div>
+                    </div>
+                    
+                    ${generateCountryEconomicProfile(countryData, targetCountry)}
+                    ${generateTradeAgreements(countryData, targetCountry)}
+                    ${generateCompanyDiagnosis(results, company, countryData, targetCountry)}
+                    ${generateStrategicRecommendations(results, company, countryData, targetCountry)}
+                    ${generateRiskAssessment(results, company, countryData, targetCountry)}
+                    ${generateActionPlan(results, company, countryData, targetCountry)}
+                </div>
+            `;
+        }
+
+        function generateCountryEconomicProfile(countryData, targetCountry) {
+            const profile = countryData.economicProfile;
+            return `
+                <div class="country-profile" style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4 style="color: #228B22; border-bottom: 2px solid #228B22; padding-bottom: 10px;">
+                        🌍 PROFIL ÉCONOMIQUE - ${targetCountry.toUpperCase()}
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div class="economic-indicators" style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #228B22;">
+                            <h5>📈 INDICATEURS MACROÉCONOMIQUES</h5>
+                            <ul style="list-style: none; padding: 0;">
+                                <li><strong>PIB :</strong> ${profile.pib}</li>
+                                <li><strong>PIB/habitant :</strong> ${profile.pibParHabitant}</li>
+                                <li><strong>Croissance :</strong> ${profile.croissance}</li>
+                                <li><strong>Inflation :</strong> ${profile.inflation}</li>
+                                <li><strong>Population :</strong> ${profile.population}</li>
+                                <li><strong>Monnaie :</strong> ${profile.monnaie}</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="business-environment" style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #FF6B35;">
+                            <h5>🏢 ENVIRONNEMENT DES AFFAIRES</h5>
+                            <ul style="list-style: none; padding: 0;">
+                                <li><strong>Facilité affaires :</strong> ${profile.faciliteAffaires}</li>
+                                <li><strong>Risque pays :</strong> ${profile.risquePays}</li>
+                                <li><strong>Imports CI :</strong> ${profile.importationsCI}</li>
+                                <li><strong>Secteurs dominants :</strong></li>
+                                ${profile.principauxSecteurs.map(s => `<li style="margin-left: 15px;">• ${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="import-analysis" style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5 style="color: #2E8B57;">📦 ANALYSE DES IMPORTATIONS DEPUIS LA CÔTE D'IVOIRE</h5>
+                        <p><strong>Volume annuel :</strong> ${profile.importationsCI}</p>
+                        <p><strong>Principaux produits importés :</strong></p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                            ${profile.principalesImportations.map(prod => 
+                                `<span style="background: #228B22; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.9em;">${prod}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateTradeAgreements(countryData, targetCountry) {
+            const agreements = countryData.agreements;
+            return `
+                <div class="trade-agreements" style="background: #e3f2fd; padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4 style="color: #1565c0; border-bottom: 2px solid #1565c0; padding-bottom: 10px;">
+                        📋 CADRE JURIDIQUE ET ACCORDS COMMERCIAUX
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div class="bilateral-agreements" style="background: white; padding: 20px; border-radius: 10px;">
+                            <h5 style="color: #1565c0;">🤝 ACCORDS BILATÉRAUX</h5>
+                            <ul>
+                                ${agreements.bilateral.map(accord => `<li>${accord}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="multilateral-agreements" style="background: white; padding: 20px; border-radius: 10px;">
+                            <h5 style="color: #1565c0;">🌐 ACCORDS MULTILATÉRAUX</h5>
+                            <ul>
+                                ${agreements.multilateral.map(accord => `<li>${accord}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="preferences" style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5 style="color: #e65100;">💰 PRÉFÉRENCES TARIFAIRES APPLICABLES</h5>
+                        <ul>
+                            ${agreements.preferences.map(pref => `<li>${pref}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    ${generateMarketAccessRequirements(countryData.marketAccess, targetCountry)}
+                </div>
+            `;
+        }
+
+        function generateMarketAccessRequirements(marketAccess, targetCountry) {
+            return `
+                <div class="market-access" style="background: #f3e5f5; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                    <h5 style="color: #7b1fa2;">🚪 MODALITÉS D'ACCÈS AU MARCHÉ</h5>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                        <div>
+                            <h6 style="color: #7b1fa2;">📄 Procédures douanières :</h6>
+                            <p>${marketAccess.procedures}</p>
+                            
+                            <h6 style="color: #7b1fa2; margin-top: 15px;">✅ Certifications requises :</h6>
+                            <ul style="margin: 5px 0; padding-left: 20px;">
+                                ${marketAccess.certifications.map(cert => `<li>${cert}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h6 style="color: #7b1fa2;">⚠️ Barrières non-tarifaires :</h6>
+                            <ul style="margin: 5px 0; padding-left: 20px;">
+                                ${marketAccess.barriers.map(barrier => `<li>${barrier}</li>`).join('')}
+                            </ul>
+                            
+                            <h6 style="color: #7b1fa2; margin-top: 15px;">🏪 Canaux de distribution :</h6>
+                            <ul style="margin: 5px 0; padding-left: 20px;">
+                                ${marketAccess.distribution.map(channel => `<li>${channel}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Dimensions et questions
+        const dimensions = [
+            {
+                title: "1. Capacité de Production et Logistique",
+                weight: 12,
+                questions: [
+                    "Votre entreprise dispose-t-elle d'une capacité de production suffisante pour répondre à une demande export supplémentaire de 30% ?",
+                    "Avez-vous des équipements et infrastructures conformes aux standards internationaux ?",
+                    "Disposez-vous d'un système de gestion des stocks et de planification de production efficace ?",
+                    "Votre chaîne d'approvisionnement est-elle fiable et diversifiée ?",
+                    "Pouvez-vous garantir des délais de livraison courts et respectés (moins de 30 jours) ?"
+                ]
+            },
+            {
+                title: "2. Qualité et Conformité",
+                weight: 15,
+                questions: [
+                    "Vos produits respectent-ils les normes de qualité internationales (ISO, CE, FDA, etc.) ?",
+                    "Disposez-vous de certifications qualité reconnues dans vos marchés cibles ?",
+                    "Avez-vous un système de contrôle qualité rigoureux à toutes les étapes ?",
+                    "Vos emballages sont-ils adaptés au transport international et attractifs ?",
+                    "Effectuez-vous régulièrement des tests produits par des laboratoires agréés ?"
+                ]
+            },
+            {
+                title: "3. Situation Financière",
+                weight: 13,
+                questions: [
+                    "Votre entreprise dispose-t-elle d'une situation financière saine (ratios d'endettement < 70%) ?",
+                    "Avez-vous accès à des financements dédiés à l'export (crédit export, affacturage) ?",
+                    "Pouvez-vous investir au moins 10% de votre CA dans le développement export ?",
+                    "Disposez-vous d'une trésorerie suffisante pour supporter 90 jours de décalage de paiement ?",
+                    "Votre comptabilité est-elle aux normes internationales (IFRS/OHADA) ?"
+                ]
+            },
+            {
+                title: "4. Maîtrise des Prix et Techniques Commerciales Export",
+                weight: 12,
+                questions: [
+                    "Maîtrisez-vous les Incoterms et leur impact sur vos prix ?",
+                    "Avez-vous une grille de prix adaptée à chaque marché cible ?",
+                    "Connaissez-vous les techniques de paiement international (crédit documentaire, etc.) ?",
+                    "Disposez-vous d'outils de couverture contre le risque de change ?",
+                    "Vos prix sont-ils compétitifs par rapport à la concurrence internationale ?"
+                ]
+            },
+            {
+                title: "5. Expérience et Compétences Export",
+                weight: 11,
+                questions: [
+                    "Votre équipe a-t-elle une expérience du commerce international ?",
+                    "Disposez-vous d'un responsable export dédié et formé ?",
+                    "Connaissez-vous les réglementations douanières de vos marchés cibles ?",
+                    "Avez-vous déjà participé à des salons internationaux ou missions commerciales ?",
+                    "Maîtrisez-vous les langues de vos marchés cibles (anglais, français, etc.) ?"
+                ]
+            },
+            {
+                title: "6. Produit et Positionnement",
+                weight: 10,
+                questions: [
+                    "Votre produit/service répond-il à un besoin spécifique sur les marchés export ?",
+                    "Avez-vous adapté votre offre aux goûts et préférences locales ?",
+                    "Votre marque et communication sont-elles attractives à l'international ?",
+                    "Disposez-vous d'une protection intellectuelle de vos produits (brevets, marques) ?",
+                    "Vos produits ont-ils un avantage concurrentiel distinctif ?"
+                ]
+            },
+            {
+                title: "7. Organisation et Processus Internes",
+                weight: 9,
+                questions: [
+                    "Vos processus internes sont-ils documentés et optimisés ?",
+                    "Disposez-vous d'un système informatique performant (ERP, CRM) ?",
+                    "Votre service client peut-il gérer des demandes en plusieurs langues ?",
+                    "Avez-vous des procédures claires pour traiter les commandes export ?",
+                    "Votre équipe est-elle formée aux spécificités du commerce international ?"
+                ]
+            },
+            {
+                title: "8. Innovation et Développement",
+                weight: 8,
+                questions: [
+                    "Investissez-vous régulièrement dans la R&D (au moins 2% du CA) ?",
+                    "Votre entreprise développe-t-elle de nouveaux produits/services annuellement ?",
+                    "Suivez-vous les tendances et innovations de votre secteur ?",
+                    "Collaborez-vous avec des centres de recherche ou universités ?",
+                    "Vos innovations sont-elles protégées et valorisées ?"
+                ]
+            },
+            {
+                title: "9. Réseau et Partenariats",
+                weight: 5,
+                questions: [
+                    "Avez-vous des contacts ou partenaires dans vos marchés cibles ?",
+                    "Participez-vous à des réseaux professionnels internationaux ?",
+                    "Disposez-vous de distributeurs ou agents commerciaux fiables ?",
+                    "Entretenez-vous des relations avec les institutions d'appui à l'export ?",
+                    "Votre réseau LinkedIn/professionnel est-il développé internationalement ?"
+                ]
+            },
+            {
+                title: "10. Planification et Stratégie Export",
+                weight: 5,
+                questions: [
+                    "Avez-vous un business plan export formalisé sur 3 ans ?",
+                    "Vos objectifs export sont-ils chiffrés et suivis mensuellement ?",
+                    "Allouez-vous un budget spécifique au développement export ?",
+                    "Effectuez-vous une veille concurrentielle sur vos marchés cibles ?",
+                    "Avez-vous défini une stratégie de pénétration par marché ?"
+                ]
+            }
+        ];
+
+        // Charger les données sauvegardées
+        function loadFromStorage() {
+            const savedData = localStorage.getItem('exportToolData');
+            if (savedData) {
+                currentData = JSON.parse(savedData);
+                
+                // Remplir le formulaire entreprise
+                Object.keys(currentData.company).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element && typeof currentData.company[key] === 'string') {
+                        element.value = currentData.company[key];
+                    }
+                });
+                
+                // Restaurer les sélections de marchés actuels (multi-select)
+                if (currentData.company.currentMarkets) {
+                    currentData.company.currentMarkets.forEach(country => {
+                        const checkbox = document.getElementById(`currentMarkets_${country}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                    updateDisplaySelection('currentMarkets');
+                }
+                
+                // Remplir les questions si elles existent
+                if (Object.keys(currentData.scores).length > 0) {
+                    generateQuestions();
+                    updateProgress();
+                }
+                
+                // Afficher les résultats si ils existent
+                if (currentData.results) {
+                    displayResults();
+                }
+                
+                // Afficher le diagnostic détaillé si disponible
+                if (currentData.results && currentData.company.targetMarkets) {
+                    displayDetailedDiagnosis();
+                }
+            }
+            
+            loadHistory();
+        }
+
+        // Sauvegarder les données
+        function saveToStorage() {
+            localStorage.setItem('exportToolData', JSON.stringify(currentData));
+        }
+
+        // Navigation entre sections avec effet de chargement
+        function showSection(sectionName) {
+            // Cacher toutes les sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Cacher le conteneur de chargement
+            document.getElementById('loadingContainer').classList.remove('active');
+            
+            // Retirer la classe active de tous les boutons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('loading');
+            });
+            
+            // Afficher la section demandée
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Activer le bouton correspondant
+            event.target.classList.add('active');
+        }
+
+        // Navigation avec effet de chargement pour les résultats
+        function showSectionWithLoading(sectionName) {
+            if (sectionName === 'results') {
+                // Vérifier s'il y a des résultats à afficher
+                if (!currentData.results) {
+                    showAlert('Veuillez d\'abord compléter l\'évaluation et calculer les résultats.', 'warning');
+                    return;
+                }
+                
+                // Démarrer l'animation de chargement
+                startLoadingAnimation();
+                
+                // Simuler le traitement pendant 10 secondes
+                setTimeout(() => {
+                    completeLoading(sectionName);
+                }, 10000);
+            } else if (sectionName === 'detailed-diagnosis') {
+                // Vérifier s'il y a des résultats et un marché cible
+                if (!currentData.results) {
+                    showAlert('Veuillez d\'abord compléter l\'évaluation et calculer les résultats.', 'warning');
+                    return;
+                }
+                
+                if (!currentData.company.targetMarkets) {
+                    showAlert('Veuillez sélectionner un marché cible prioritaire dans les informations entreprise.', 'warning');
+                    return;
+                }
+                
+                // Démarrer l'animation de chargement
+                startLoadingAnimation();
+                
+                // Générer le diagnostic détaillé
+                setTimeout(() => {
+                    displayDetailedDiagnosis();
+                    completeLoading(sectionName);
+                }, 10000);
+            } else {
+                showSection(sectionName);
+            }
+        }
+
+        function displayDetailedDiagnosis() {
+            const container = document.getElementById('detailedDiagnosisContainer');
+            const diagnosis = generateDetailedDiagnosis();
+            container.innerHTML = diagnosis;
+        }
+
+        function startLoadingAnimation() {
+            // Masquer toutes les sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Retirer la classe active de tous les boutons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Marquer l'onglet résultats comme en chargement
+            const resultsTab = document.getElementById('resultsTab');
+            resultsTab.classList.add('loading');
+            resultsTab.innerHTML = '⏳ Analyse en cours...';
+            
+            // Afficher le conteneur de chargement
+            document.getElementById('loadingContainer').classList.add('active');
+            
+            // Réinitialiser les étapes
+            document.querySelectorAll('.loading-step').forEach(step => {
+                step.classList.remove('completed', 'active');
+                step.querySelector('.loading-step-icon').innerHTML = '⏳';
+            });
+            
+            // Démarrer l'animation de la barre et des étapes
+            animateLoadingProgress();
+        }
+
+        function animateLoadingProgress() {
+            const loadingBar = document.getElementById('loadingBar');
+            const loadingPercentage = document.getElementById('loadingPercentage');
+            const steps = ['step1', 'step2', 'step3', 'step4', 'step5'];
+            
+            let progress = 0;
+            let currentStep = 0;
+            
+            const interval = setInterval(() => {
+                progress += 1;
+                
+                // Mettre à jour la barre de progression
+                loadingBar.style.width = progress + '%';
+                loadingPercentage.textContent = progress + '%';
+                
+                // Activer les étapes progressivement
+                const stepThresholds = [15, 35, 55, 75, 95];
+                
+                for (let i = 0; i < stepThresholds.length; i++) {
+                    const stepElement = document.getElementById(steps[i]);
+                    
+                    if (progress >= stepThresholds[i] && !stepElement.classList.contains('completed')) {
+                        // Marquer l'étape précédente comme complétée
+                        if (i > 0) {
+                            const prevStep = document.getElementById(steps[i-1]);
+                            prevStep.classList.remove('active');
+                            prevStep.classList.add('completed');
+                            prevStep.querySelector('.loading-step-icon').innerHTML = '✅';
+                        }
+                        
+                        // Activer l'étape actuelle
+                        stepElement.classList.add('active');
+                        stepElement.querySelector('.loading-step-icon').innerHTML = '<div class="spinner"></div>';
+                    }
+                }
+                
+                // Arrêter à 100%
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Marquer la dernière étape comme complétée
+                    const lastStep = document.getElementById(steps[steps.length - 1]);
+                    lastStep.classList.remove('active');
+                    lastStep.classList.add('completed');
+                    lastStep.querySelector('.loading-step-icon').innerHTML = '✅';
+                }
+            }, 100); // Mise à jour toutes les 100ms pour 10 secondes total
+        }
+
+        function completeLoading(sectionName) {
+            // Masquer le conteneur de chargement
+            document.getElementById('loadingContainer').classList.remove('active');
+            
+            // Restaurer l'onglet résultats
+            const resultsTab = document.getElementById('resultsTab');
+            resultsTab.classList.remove('loading');
+            resultsTab.classList.add('active');
+            resultsTab.innerHTML = '📊 Résultats & Analyse';
+            
+            // Afficher la section des résultats
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Effet de succès
+            showAlert('✅ Analyse terminée ! Votre rapport détaillé est maintenant disponible.', 'success');
+            
+            // Scroll vers le haut pour voir les résultats
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Passer à la section évaluation
+        function nextCompanySection() {
+            // Récupérer les données du formulaire
+            const formData = new FormData(document.getElementById('companyForm'));
+            const companyData = {};
+            
+            for (let [key, value] of formData.entries()) {
+                companyData[key] = value;
+            }
+            
+            // Ajouter les marchés actuels sélectionnés (multi-select)
+            companyData.currentMarkets = currentData.company.currentMarkets || [];
+            
+            // Vérifier les champs obligatoires
+            if (!companyData.companyName || !companyData.sector) {
+                showAlert('Veuillez remplir au minimum le nom de l\'entreprise et le secteur d\'activité.', 'warning');
+                return;
+            }
+            
+            if (companyData.currentMarkets.length === 0) {
+                showAlert('Veuillez sélectionner au moins un marché actuel.', 'warning');
+                return;
+            }
+            
+            if (!companyData.targetMarkets) {
+                showAlert('Veuillez sélectionner un marché cible prioritaire pour l\'export.', 'warning');
+                return;
+            }
+            
+            // Sauvegarder les données
+            currentData.company = companyData;
+            saveToStorage();
+            
+            // Générer les questions
+            generateQuestions();
+            
+            // Passer à la section évaluation
+            showSection('evaluation');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[onclick="showSection(\'evaluation\')"]').classList.add('active');
+        }
+
+        // Générer les questions
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            dimensions.forEach((dimension, dimIndex) => {
+                // En-tête de dimension
+                const header = document.createElement('div');
+                header.className = 'dimension-header';
+                header.innerHTML = dimension.title;
+                container.appendChild(header);
+                
+                // Questions de la dimension
+                dimension.questions.forEach((question, qIndex) => {
+                    const questionContainer = document.createElement('div');
+                    questionContainer.className = 'question-container';
+                    
+                    const questionId = `${dimIndex}-${qIndex}`;
+                    
+                    questionContainer.innerHTML = `
+                        <div class="question-title">${question}</div>
+                        <div class="score-buttons">
+                            <button class="score-btn" onclick="selectScore('${questionId}', 1)" data-score="1">1 - Pas du tout</button>
+                            <button class="score-btn" onclick="selectScore('${questionId}', 2)" data-score="2">2 - Peu</button>
+                            <button class="score-btn" onclick="selectScore('${questionId}', 3)" data-score="3">3 - Moyennement</button>
+                            <button class="score-btn" onclick="selectScore('${questionId}', 4)" data-score="4">4 - Entièrement</button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(questionContainer);
+                    
+                    // Restaurer la sélection si elle existe
+                    if (currentData.scores[questionId]) {
+                        setTimeout(() => {
+                            const selectedBtn = questionContainer.querySelector(`[data-score="${currentData.scores[questionId]}"]`);
+                            if (selectedBtn) selectedBtn.classList.add('selected');
+                        }, 100);
+                    }
+                });
+            });
+            
+            updateProgress();
+        }
+
+        // Sélectionner un score
+        function selectScore(questionId, score) {
+            // Sauvegarder le score
+            currentData.scores[questionId] = score;
+            saveToStorage();
+            
+            // Mettre à jour l'interface
+            const questionContainer = event.target.closest('.question-container');
+            questionContainer.querySelectorAll('.score-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Mettre à jour la progression
+            updateProgress();
+        }
+
+        // Mettre à jour la progression
+        function updateProgress() {
+            const totalQuestions = dimensions.reduce((total, dim) => total + dim.questions.length, 0);
+            const answeredQuestions = Object.keys(currentData.scores).length;
+            const percentage = (answeredQuestions / totalQuestions) * 100;
+            
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${answeredQuestions}/${totalQuestions} questions complétées`;
+        }
+
+        // Calculer les résultats avec effet de chargement
+        function calculateResults() {
+            // Vérifier que toutes les questions sont répondues
+            const totalQuestions = dimensions.reduce((total, dim) => total + dim.questions.length, 0);
+            const answeredQuestions = Object.keys(currentData.scores).length;
+            
+            if (answeredQuestions < totalQuestions) {
+                showAlert(`Veuillez répondre à toutes les questions. ${totalQuestions - answeredQuestions} question(s) manquante(s).`, 'warning');
+                return;
+            }
+            
+            if (!currentData.company.companyName) {
+                showAlert('Veuillez d\'abord remplir les informations entreprise.', 'warning');
+                showSection('company');
+                return;
+            }
+            
+            // Calculer les scores par dimension
+            const dimensionScores = [];
+            let globalWeightedScore = 0;
+            
+            dimensions.forEach((dimension, dimIndex) => {
+                let dimensionTotal = 0;
+                const questionsCount = dimension.questions.length;
+                
+                dimension.questions.forEach((question, qIndex) => {
+                    const questionId = `${dimIndex}-${qIndex}`;
+                    dimensionTotal += currentData.scores[questionId] || 0;
+                });
+                
+                const dimensionPercent = (dimensionTotal / (questionsCount * 4)) * 100;
+                const weightedContribution = (dimensionPercent * dimension.weight) / 100;
+                
+                dimensionScores.push({
+                    name: dimension.title,
+                    rawScore: dimensionTotal,
+                    maxScore: questionsCount * 4,
+                    percentage: Math.round(dimensionPercent),
+                    weight: dimension.weight,
+                    contribution: weightedContribution
+                });
+                
+                globalWeightedScore += weightedContribution;
+            });
+            
+            // Ajustement sectoriel
+            const sectorCoefficient = getSectorCoefficient(currentData.company.sector);
+            const adjustedScore = Math.round(globalWeightedScore * sectorCoefficient);
+            
+            // Déterminer le niveau
+            const level = determineLevel(adjustedScore);
+            
+            // Calculer l'écart-type
+            const percentages = dimensionScores.map(d => d.percentage);
+            const average = percentages.reduce((a, b) => a + b, 0) / percentages.length;
+            const variance = percentages.reduce((acc, val) => acc + Math.pow(val - average, 2), 0) / percentages.length;
+            const standardDeviation = Math.round(Math.sqrt(variance) * 10) / 10;
+            
+            // Sauvegarder les résultats
+            currentData.results = {
+                globalScore: Math.round(globalWeightedScore),
+                adjustedScore: adjustedScore,
+                level: level,
+                standardDeviation: standardDeviation,
+                dimensionScores: dimensionScores,
+                calculationDate: new Date().toLocaleDateString('fr-FR')
+            };
+            
+            // Afficher les résultats avec effet de chargement
+            displayResults();
+            saveToHistory();
+            saveToStorage();
+            
+            // Démarrer l'animation de chargement avant d'aller aux résultats
+            startLoadingAnimation();
+            
+            // Attendre 10 secondes puis afficher les résultats
+            setTimeout(() => {
+                completeLoading('results');
+            }, 10000);
+        }
+
+        // Coefficients sectoriels
+        function getSectorCoefficient(sector) {
+            const coefficients = {
+                'Agro-alimentaire': 1.0,
+                'Technologie': 1.1,
+                'Textile': 0.95,
+                'Pharmaceutique': 1.15,
+                'Artisanat': 0.9,
+                'Autre': 1.0
+            };
+            return coefficients[sector] || 1.0;
+        }
+
+        // Déterminer le niveau
+        function determineLevel(score) {
+            if (score >= 80) return 'EXCELLENT';
+            if (score >= 65) return 'BON POTENTIEL';
+            if (score >= 45) return 'POTENTIEL MOYEN';
+            return 'DÉVELOPPEMENT NÉCESSAIRE';
+        }
+
+        // Afficher les résultats
+        function displayResults() {
+            const container = document.getElementById('resultsContainer');
+            const results = currentData.results;
+            const company = currentData.company;
+            
+            if (!results) return;
+            
+            let levelColor = '#34a853';
+            if (results.adjustedScore < 45) levelColor = '#ea4335';
+            else if (results.adjustedScore < 65) levelColor = '#ff9900';
+            
+            let html = `
+                <div class="results-header" style="background: linear-gradient(135deg, ${levelColor}, ${levelColor}dd);">
+                    <h2>📊 Résultats pour ${company.companyName}</h2>
+                    <div class="score-display">${results.adjustedScore}%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">${results.level}</div>
+                    <div>Évaluation du ${results.calculationDate}</div>
+                </div>
+                
+                <div class="dimension-scores">
+            `;
+            
+            // Scores par dimension
+            results.dimensionScores.forEach(dimension => {
+                let barColor = '#ea4335';
+                if (dimension.percentage >= 75) barColor = '#34a853';
+                else if (dimension.percentage >= 50) barColor = '#ff9900';
+                
+                html += `
+                    <div class="dimension-card">
+                        <div class="dimension-name">${dimension.name.replace(/^\d+\.\s*/, '')}</div>
+                        <div class="dimension-score">${dimension.percentage}%</div>
+                        <div class="dimension-bar">
+                            <div class="dimension-fill" style="width: ${dimension.percentage}%; background: ${barColor};"></div>
+                        </div>
+                        <small>Poids: ${dimension.weight}% | Score: ${dimension.rawScore}/${dimension.maxScore}</small>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Diagnostic global
+            html += generateGlobalDiagnosis(results, company);
+            
+            // Recommandations stratégiques
+            html += generateStrategicRecommendations(results, company);
+            
+            container.innerHTML = html;
+        }
+
+        // Diagnostic global approfondi
+        function generateGlobalDiagnosis(results, company) {
+            const score = results.adjustedScore;
+            const weakDimensions = results.dimensionScores.filter(d => d.percentage < 50);
+            const strongDimensions = results.dimensionScores.filter(d => d.percentage >= 75);
+            const criticalDimensions = results.dimensionScores.filter(d => d.percentage < 30);
+            
+            // Analyse de cohérence
+            const coherenceAnalysis = analyzeCoherence(results);
+            
+            // Identification goulots d'étranglement
+            const bottlenecks = identifyBottlenecks(results, company.sector);
+            
+            // Estimation délais et budget
+            const timeline = estimateTimeline(score, weakDimensions.length);
+            const budget = estimateBudget(score, weakDimensions, company.sector);
+            
+            let diagnosis = `
+                <div class="detailed-diagnosis">
+                    <h4>📊 DIAGNOSTIC COMPLET POUR ${company.companyName.toUpperCase()}</h4>
+                    
+                    <div class="diagnosis-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div class="diagnosis-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #1a73e8;">
+                            <h5>🎯 PROFIL EXPORT</h5>
+                            <p><strong>Score ajusté :</strong> ${score}%</p>
+                            <p><strong>Niveau :</strong> ${results.level}</p>
+                            <p><strong>Délai export :</strong> ${timeline}</p>
+                            <p><strong>Budget total :</strong> ${budget}</p>
+                            <p><strong>Homogénéité :</strong> ${coherenceAnalysis.type}</p>
+                        </div>
+                        
+        function generateCompanyDiagnosis(results, company, countryData, targetCountry) {
+            const score = results.adjustedScore;
+            const weakDimensions = results.dimensionScores.filter(d => d.percentage < 50);
+            const strongDimensions = results.dimensionScores.filter(d => d.percentage >= 75);
+            
+            return `
+                <div class="company-diagnosis" style="background: #fff3e0; padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4 style="color: #e65100; border-bottom: 2px solid #e65100; padding-bottom: 10px;">
+                        🏢 DIAGNOSTIC APPROFONDI DE L'ENTREPRISE
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div class="readiness-assessment" style="background: white; padding: 20px; border-radius: 10px;">
+                            <h5 style="color: #e65100;">📊 ÉVALUATION DE LA MATURITÉ EXPORT</h5>
+                            <div style="margin: 15px 0;">
+                                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; border-left: 4px solid ${score >= 70 ? '#228B22' : score >= 50 ? '#ff9900' : '#ea4335'};">
+                                    <p><strong>Score global :</strong> ${score}% (${results.level})</p>
+                                    <p><strong>Positionnement :</strong> ${getCompanyPositioning(score)}</p>
+                                    <p><strong>Délai de préparation estimé :</strong> ${getPreparationTimeline(score, weakDimensions.length)}</p>
+                                </div>
+                            </div>
+                            
+                            <h6 style="color: #e65100; margin-top: 20px;">💪 Forces identifiées (${strongDimensions.length}/10) :</h6>
+                            ${strongDimensions.length > 0 ? 
+                                `<ul style="margin: 10px 0; padding-left: 20px;">
+                                    ${strongDimensions.slice(0, 3).map(dim => 
+                                        `<li>${dim.name.replace(/^\d+\.\s*/, '')} (${dim.percentage}%)</li>`
+                                    ).join('')}
+                                </ul>` : 
+                                '<p style="color: #999; font-style: italic;">Aucune dimension forte identifiée - Développement global nécessaire</p>'
+                            }
+                            
+                            <h6 style="color: #e65100; margin-top: 15px;">⚠️ Faiblesses critiques (${weakDimensions.length}/10) :</h6>
+                            ${weakDimensions.length > 0 ? 
+                                `<ul style="margin: 10px 0; padding-left: 20px;">
+                                    ${weakDimensions.slice(0, 3).map(dim => 
+                                        `<li style="color: #d32f2f;">${dim.name.replace(/^\d+\.\s*/, '')} (${dim.percentage}%)</li>`
+                                    ).join('')}
+                                </ul>` : 
+                                '<p style="color: #228B22; font-weight: bold;">Aucune faiblesse critique - Excellent profil export</p>'
+                            }
+                        </div>
+                        
+                        <div class="market-compatibility" style="background: white; padding: 20px; border-radius: 10px;">
+                            <h5 style="color: #e65100;">🎯 ADÉQUATION MARCHÉ-ENTREPRISE</h5>
+                            
+                            ${generateMarketCompatibilityAnalysis(company, countryData, targetCountry, score)}
+                        </div>
+                    </div>
+                    
+                    ${generateSectorSpecificAnalysis(company, countryData, targetCountry, score)}
+                </div>
+            `;
+        }
+
+        function getCompanyPositioning(score) {
+            if (score >= 80) return "Entreprise leader prête pour l'expansion internationale";
+            if (score >= 65) return "Entreprise mature avec potentiel export confirmé";
+            if (score >= 45) return "Entreprise en développement nécessitant une préparation ciblée";
+            return "Entreprise en phase de consolidation interne pré-export";
+        }
+
+        function getPreparationTimeline(score, weakCount) {
+            if (score >= 80) return "0-3 mois (lancement immédiat possible)";
+            if (score >= 65) return "3-6 mois (mise en conformité rapide)";
+            if (score >= 45) return "6-12 mois (développement structuré)";
+            if (weakCount >= 6) return "18-24 mois (reconstruction complète)";
+            return "12-18 mois (renforcement ciblé)";
+        }
+
+        function generateMarketCompatibilityAnalysis(company, countryData, targetCountry, score) {
+            const profile = countryData.economicProfile;
+            const sector = company.sector;
+            
+            // Analyse de compatibilité secteur-marché
+            const sectorCompatibility = analyzeSectorCompatibility(sector, profile, targetCountry);
+            
+            return `
+                <div style="margin: 15px 0;">
+                    <h6 style="color: #e65100;">📈 Potentiel secteur-marché :</h6>
+                    <div style="background: ${sectorCompatibility.color}; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                        <p><strong>${sectorCompatibility.level}</strong></p>
+                        <p style="font-size: 0.9em;">${sectorCompatibility.analysis}</p>
+                    </div>
+                    
+                    <h6 style="color: #e65100; margin-top: 15px;">💰 Analyse financière :</h6>
+                    <ul style="margin: 10px 0; padding-left: 20px; font-size: 0.9em;">
+                        <li>Taille du marché : ${profile.pib}</li>
+                        <li>Pouvoir d'achat : ${profile.pibParHabitant}</li>
+                        <li>Imports actuels CI : ${profile.importationsCI}</li>
+                        <li>Dynamique économique : ${profile.croissance}</li>
+                    </ul>
+                    
+                    <h6 style="color: #e65100; margin-top: 15px;">⚡ Recommandation stratégique :</h6>
+                    <p style="background: #f5f5f5; padding: 10px; border-radius: 6px; font-size: 0.9em; border-left: 4px solid #e65100;">
+                        ${getStrategicRecommendation(score, sectorCompatibility.level, targetCountry)}
+                    </p>
+                </div>
+            `;
+        }
+
+        function analyzeSectorCompatibility(sector, profile, targetCountry) {
+            const compatibilityMatrix = {
+                'Agro-alimentaire': {
+                    'France': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Marché premium pour produits tropicaux avec forte demande bio et équitable' },
+                    'Allemagne': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Marché industriel mature valorisant la qualité et traçabilité' },
+                    'États-Unis': { level: 'BON', color: '#fff3e0', analysis: 'Marché de volume important mais très concurrentiel et réglementé' },
+                    'Italie': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Tradition culinaire valorisant produits authentiques et qualité' },
+                    'Espagne': { level: 'BON', color: '#fff3e0', analysis: 'Porte d\'entrée UE avec expertise fruits tropicaux' },
+                    'Royaume-Uni': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Marché post-Brexit cherchant nouveaux fournisseurs fiables' },
+                    'Canada': { level: 'BON', color: '#fff3e0', analysis: 'Marché multiculturel appréciant diversité produits tropicaux' }
+                },
+                'Textile': {
+                    'France': { level: 'MOYEN', color: '#fff3e0', analysis: 'Marché de niche haut de gamme avec préférence pour le made in Africa' },
+                    'Allemagne': { level: 'BON', color: '#fff3e0', analysis: 'Opportunités dans le textile technique et durable' },
+                    'États-Unis': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Marché AGOA très favorable avec quotas préférentiels' },
+                    'Italie': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Hub mode européen recherchant innovation et durabilité' },
+                    'Espagne': { level: 'MOYEN', color: '#fff3e0', analysis: 'Concurrence forte avec Maroc et Turquie' },
+                    'Royaume-Uni': { level: 'BON', color: '#fff3e0', analysis: 'Marché fast fashion en transition vers durable' },
+                    'Canada': { level: 'MOYEN', color: '#fff3e0', analysis: 'Marché restreint mais valorisant éthique et durabilité' }
+                },
+                'Technologie': {
+                    'France': { level: 'BON', color: '#fff3e0', analysis: 'Écosystème tech développé recherchant innovation africaine' },
+                    'Allemagne': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Leader mondial Industry 4.0 avec programmes de coopération' },
+                    'États-Unis': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Silicon Valley mondial offrant accès aux capitaux et marchés globaux' },
+                    'Italie': { level: 'MOYEN', color: '#fff3e0', analysis: 'Digitalisation en cours, opportunités dans fintech et e-commerce' },
+                    'Espagne': { level: 'BON', color: '#fff3e0', analysis: 'Hub technologique méditerranéen en croissance' },
+                    'Royaume-Uni': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Centre financier mondial, forte demande fintech et services' },
+                    'Canada': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Écosystème tech avancé et programmes immigration talents' }
+                },
+                'Pharmaceutique': {
+                    'France': { level: 'BON', color: '#fff3e0', analysis: 'Industrie pharma développée, intérêt médecine traditionnelle' },
+                    'Allemagne': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Leader européen pharma avec expertise réglementaire' },
+                    'États-Unis': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Plus grand marché mondial, innovation et génériques' },
+                    'Italie': { level: 'BON', color: '#fff3e0', analysis: 'Forte industrie générique et recherche phytothérapie' },
+                    'Espagne': { level: 'MOYEN', color: '#fff3e0', analysis: 'Marché contrôlé par multinationales, niches possibles' },
+                    'Royaume-Uni': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Centre européen R&D pharma post-Brexit' },
+                    'Canada': { level: 'BON', color: '#fff3e0', analysis: 'Système santé publique, opportunités génériques' }
+                },
+                'Artisanat': {
+                    'France': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Appréciation arts africains, marché luxe et décoration' },
+                    'Allemagne': { level: 'BON', color: '#fff3e0', analysis: 'Marché stable pour artisanat authentique et durable' },
+                    'États-Unis': { level: 'EXCELLENT', color: '#e8f5e8', analysis: 'Marché diverse et large pour arts ethniques et déco' },
+                    'Italie': { level: 'TRÈS BON', color: '#e8f5e8', analysis: 'Tradition artisanale forte, valorisation savoir-faire' },
+                    'Espagne': { level: 'BON', color: '#fff3e0', analysis: 'Marché touristique et résidentiel secondaire' },
+                    'Royaume-Uni': { level: 'BON', color: '#fff3e0', analysis: 'Marché Commonwealth et multiculturalisme' },
+                    'Canada': { level: 'MOYEN', color: '#fff3e0', analysis: 'Marché multiculturel mais climat limitant certains usages' }
+                }
+            };
+            
+            return compatibilityMatrix[sector]?.[targetCountry] || 
+                   { level: 'À ANALYSER', color: '#f5f5f5', analysis: 'Étude de marché spécialisée recommandée pour ce secteur-pays' };
+        }
+
+        function getStrategicRecommendation(score, compatibility, targetCountry) {
+            if (score >= 70 && compatibility === 'EXCELLENT') {
+                return `Lancement immédiat recommandé. Profil optimal pour conquérir le marché ${targetCountry}.`;
+            } else if (score >= 50 && (compatibility === 'EXCELLENT' || compatibility === 'TRÈS BON')) {
+                return `Préparation accélérée (6 mois) puis lancement. Marché très prometteur pour votre secteur.`;
+            } else if (score >= 70 && compatibility === 'MOYEN') {
+                return `Diversification vers d'autres marchés recommandée ou repositionnement produit pour ${targetCountry}.`;
+            } else {
+                return `Consolidation interne prioritaire avant export. Réévaluer dans 12-18 mois.`;
+            }
+        }
+
+        function generateSectorSpecificAnalysis(company, countryData, targetCountry, score) {
+            const sector = company.sector;
+            const profile = countryData.economicProfile;
+            
+            return `
+                <div class="sector-analysis" style="background: #f3e5f5; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h5 style="color: #7b1fa2;">🏭 ANALYSE SECTORIELLE SPÉCIALISÉE - ${sector.toUpperCase()}</h5>
+                    
+                    ${getSectorSpecificInsights(sector, targetCountry, profile)}
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h6 style="color: #7b1fa2;">📊 Données sectorielles clés :</h6>
+                        ${getSectorData(sector, targetCountry, profile)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSectorSpecificInsights(sector, targetCountry, profile) {
+            const insights = {
+                'Agro-alimentaire': `
+                    <p><strong>Tendances du marché :</strong> Forte demande pour les produits biologiques (+15% annuel), traçabilité exigée, certifications durables valorisées.</p>
+                    <p><strong>Saisonnalité :</strong> Contre-saison favorable pour fruits tropicaux (Oct-Mars), période optimale pour cacao (Jan-Mai).</p>
+                    <p><strong>Réglementation :</strong> Normes sanitaires strictes, règlement Novel Food pour nouveaux ingrédients, étiquetage allergènes obligatoire.</p>
+                `,
+                'Textile': `
+                    <p><strong>Positionnement :</strong> Made in Africa valorisé, textile durable en forte croissance (+25% sur 3 ans).</p>
+                    <p><strong>Opportunités :</strong> Fast fashion vers slow fashion, demande corporative pour vêtements éthiques.</p>
+                    <p><strong>Certifications clés :</strong> GOTS, OEKO-TEX, Fair Trade, traçabilité filière obligatoire.</p>
+                `,
+                'Technologie': `
+                    <p><strong>Niches porteuses :</strong> Fintech, Agtech, solutions mobiles, IA pour marchés émergents.</p>
+                    <p><strong>Écosystème :</strong> Incubateurs actifs, fonds d'investissement spécialisés Afrique, programmes gouvernementaux.</p>
+                    <p><strong>Défis :</strong> Protection intellectuelle, conformité RGPD, standards de sécurité élevés.</p>
+                `,
+                'Pharmaceutique': `
+                    <p><strong>Réglementation :</strong> Autorisation de mise sur le marché complexe (12-24 mois), conformité GMP exigée.</p>
+                    <p><strong>Opportunités :</strong> Médecine traditionnelle africaine, génériques, dispositifs médicaux.</p>
+                    <p><strong>Partenariats :</strong> Collaboration avec laboratoires locaux recommandée, essais cliniques possibles.</p>
+                `
+            };
+            
+            return insights[sector] || `
+                <p><strong>Analyse générale :</strong> Secteur nécessitant une étude de marché approfondie pour identifier les opportunités spécifiques.</p>
+                <p><strong>Recommandation :</strong> Contact avec chambres de commerce sectorielles et missions économiques pour validation du potentiel.</p>
+            `;
+        }
+
+        function getSectorData(sector, targetCountry, profile) {
+            // Données génériques - dans une vraie application, ces données viendraient d'une base de données
+            const data = {
+                'Agro-alimentaire': `
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Marché alimentaire : ${targetCountry === 'France' ? '250 Mds EUR' : targetCountry === 'Allemagne' ? '220 Mds EUR' : '800 Mds USD'}</li>
+                        <li>Croissance bio : ${targetCountry === 'France' ? '+12%' : '+15%'} annuel</li>
+                        <li>Import produits tropicaux : ${profile.importationsCI}</li>
+                        <li>Principaux concurrents : Ghana, Kenya, Équateur</li>
+                    </ul>
+                `,
+                'Textile': `
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Marché textile : ${targetCountry === 'États-Unis' ? '350 Mds USD' : '120 Mds EUR'}</li>
+                        <li>Croissance durable : +20% annuel</li>
+                        <li>Quotas AGOA : ${targetCountry === 'États-Unis' ? 'Accès libre' : 'Non applicable'}</li>
+                        <li>Prix moyen : 15-45 USD/kg selon gamme</li>
+                    </ul>
+                `
+            };
+            
+            return data[sector] || `
+                <p style="font-style: italic; color: #666;">Données sectorielles spécifiques à collecter via étude de marché dédiée.</p>
+            `;
+        }
+                    </div>
+                    
+                    <div class="coherence-analysis" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h5>🔍 ANALYSE DE COHÉRENCE</h5>
+                        ${coherenceAnalysis.description}
+                        <p><strong>Impact :</strong> ${coherenceAnalysis.impact}</p>
+                        <p><strong>Recommandation :</strong> ${coherenceAnalysis.recommendation}</p>
+                    </div>
+                    
+                    <div class="bottleneck-analysis" style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h5>🚨 GOULOTS D'ÉTRANGLEMENT IDENTIFIÉS</h5>
+                        <ol>
+                            ${bottlenecks.details.map(item => `<li><strong>${item.dimension}</strong>: ${item.impact}</li>`).join('')}
+                        </ol>
+                        <p><strong>Risque principal :</strong> ${bottlenecks.mainRisk}</p>
+                    </div>
+                </div>
+            `;
+            
+            return diagnosis;
+        }
+
+        // Analyse de cohérence
+        function analyzeCoherence(results) {
+            const percentages = results.dimensionScores.map(d => d.percentage);
+            const average = percentages.reduce((a, b) => a + b, 0) / percentages.length;
+            const variance = percentages.reduce((acc, val) => acc + Math.pow(val - average, 2), 0) / percentages.length;
+            const standardDeviation = Math.sqrt(variance);
+            
+            let coherenceType, description, impact, recommendation;
+            
+            if (standardDeviation < 10) {
+                coherenceType = "ÉQUILIBRÉ";
+                description = "Profil homogène avec des capacités cohérentes entre toutes les dimensions.";
+                impact = "Facilite la présentation commerciale et réduit les risques perçus.";
+                recommendation = "Maintenez cette homogénéité en développant toutes les dimensions de manière équilibrée.";
+            } else if (standardDeviation < 20) {
+                coherenceType = "MOYENNEMENT ÉQUILIBRÉ";
+                description = "Quelques disparités entre dimensions mais profil globalement cohérent.";
+                impact = "Nécessite une communication ciblée pour mettre en avant les points forts.";
+                recommendation = "Concentrez 60% des efforts sur les 2-3 dimensions les plus faibles.";
+            } else if (standardDeviation < 30) {
+                coherenceType = "HÉTÉROGÈNE";
+                description = "Profil contrasté avec des points forts marqués mais aussi des faiblesses significatives.";
+                impact = "Risque que les faiblesses compromettent l'exploitation des forces.";
+                recommendation = "URGENCE: Investissez 80% des ressources sur les dimensions les plus faibles.";
+            } else {
+                coherenceType = "TRÈS HÉTÉROGÈNE";
+                description = "Déséquilibres majeurs avec d'excellentes capacités dans certains domaines mais des défaillances critiques dans d'autres.";
+                impact = "Situation à risque élevé - les faiblesses peuvent annuler les avantages des forces.";
+                recommendation = "CRITIQUE: Plan de rééquilibrage urgent nécessaire avant tout lancement export.";
+            }
+            
+            return { type: coherenceType, description, impact, recommendation };
+        }
+
+        // Identification des goulots d'étranglement
+        function identifyBottlenecks(results, sector) {
+            const weakDimensions = results.dimensionScores
+                .filter(d => d.percentage < 50)
+                .sort((a, b) => a.percentage - b.percentage);
+            
+            const criticalDimensions = results.dimensionScores.filter(d => d.percentage < 30);
+            
+            let primaryBottleneck = "Aucun goulot critique";
+            let mainRisk = "Risques limités";
+            let details = [];
+            
+            if (weakDimensions.length > 0) {
+                const critical = weakDimensions[0];
+                primaryBottleneck = critical.name.split(' ')[0];
+                
+                const impacts = {
+                    'QUALITÉ': { impact: "Rejet produits, amendes réglementaires, perte de réputation", severity: "CRITIQUE" },
+                    'PRIX': { impact: "Erreurs pricing coûteuses, litiges paiement, pertes change", severity: "ÉLEVÉ" },
+                    'FINANCIÈRE': { impact: "Rupture trésorerie, incapacité honorer commandes", severity: "CRITIQUE" },
+                    'EXPÉRIENCE': { impact: "Erreurs stratégiques, non-conformités, échecs commerciaux", severity: "ÉLEVÉ" },
+                    'PRODUIT': { impact: "Positionnement inadéquat, échec commercial", severity: "ÉLEVÉ" }
+                };
+                
+                weakDimensions.forEach(dim => {
+                    const key = dim.name.toUpperCase().split(' ')[0];
+                    const impactInfo = impacts[key] || { impact: "Impact négatif sur performance export", severity: "MOYEN" };
+                    
+                    details.push({
+                        dimension: dim.name.split(' ')[0],
+                        percentage: dim.percentage,
+                        impact: impactInfo.impact,
+                        severity: impactInfo.severity
+                    });
+                });
+                
+                if (criticalDimensions.length >= 3) {
+                    mainRisk = "RISQUE MAJEUR - Échec probable sans redressement immédiat";
+                } else if (criticalDimensions.length >= 1) {
+                    mainRisk = "RISQUE ÉLEVÉ - Consolidation urgente requise";
+                } else if (weakDimensions.length >= 4) {
+                    mainRisk = "RISQUE MODÉRÉ - Développement structuré nécessaire";
+                } else {
+                    mainRisk = "RISQUE LIMITÉ - Améliorations ciblées suffisantes";
+                }
+            }
+            
+            return { primary: primaryBottleneck, mainRisk, details };
+        }
+
+        // Estimation timeline
+        function estimateTimeline(score, weakCount) {
+            if (score >= 80) return "Immédiat (0-3 mois)";
+            if (score >= 65) return "Court terme (3-6 mois)";
+            if (score >= 45) return "Moyen terme (6-12 mois)";
+            if (weakCount >= 6) return "Long terme (18-24 mois)";
+            return "Moyen-long terme (12-18 mois)";
+        }
+
+        // Estimation budget
+        function estimateBudget(score, weakDimensions, sector) {
+            let baseBudget = 0;
+            
+            if (score >= 80) baseBudget = 2000000;
+            else if (score >= 65) baseBudget = 5000000;
+            else if (score >= 45) baseBudget = 10000000;
+            else baseBudget = 20000000;
+            
+            const criticalDimensions = weakDimensions.filter(d => d.percentage < 30);
+            baseBudget += criticalDimensions.length * 3000000;
+            
+            const sectorMultipliers = {
+                'Technologie': 1.3,
+                'Pharmaceutique': 1.5,
+                'Agro-alimentaire': 1.2,
+                'Textile': 1.0,
+                'Artisanat': 0.8
+            };
+            
+            const multiplier = sectorMultipliers[sector] || 1.0;
+            const finalBudget = baseBudget * multiplier;
+            
+            if (finalBudget >= 1000000) {
+                return Math.round(finalBudget / 1000000) + "M FCFA";
+            } else {
+                return Math.round(finalBudget / 1000) + "K FCFA";
+            }
+        }
+
+        // Générer recommandations stratégiques
+        function generateStrategicRecommendations(results, company) {
+            const weakDimensions = results.dimensionScores.filter(d => d.percentage < 50);
+            const score = results.adjustedScore;
+            
+            let recommendations = `
+                <div class="strategic-recommendations">
+                    <h4>💡 PLAN D'ACTION STRATÉGIQUE DÉTAILLÉ</h4>
+            `;
+            
+            if (score >= 80) {
+                recommendations += `
+                    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5>✅ STRATÉGIE LANCEMENT IMMÉDIAT</h5>
+                        <p><strong>Position :</strong> Entreprise mature pour l'export avec excellentes capacités.</p>
+                        
+                        <h6>🎯 PLAN D'ACTION IMMÉDIAT (0-90 jours) :</h6>
+                        <ul>
+                            <li><strong>Semaines 1-2 :</strong> Documentation commerciale multilingue - Budget : 300-800K FCFA</li>
+                            <li><strong>Semaines 3-6 :</strong> Inscription 3 salons internationaux - Budget : 1.5-4M FCFA</li>
+                            <li><strong>Semaines 7-12 :</strong> Missions commerciales dans 2 pays - Budget : 800K-2M FCFA</li>
+                        </ul>
+                        
+                        <p><strong>🎯 OBJECTIFS 6 MOIS :</strong></p>
+                        <ul>
+                            <li>5-10 contrats export signés</li>
+                            <li>15-25% du CA généré à l'export</li>
+                            <li>ROI export : 150-300% sur investissement</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (score >= 65) {
+                recommendations += `
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5>🚀 STRATÉGIE PRÉPARATION FINALE</h5>
+                        <p><strong>Position :</strong> Bon potentiel avec quelques ajustements nécessaires.</p>
+                        
+                        <h6>⚡ PLAN DE MISE À NIVEAU (3-6 mois) :</h6>
+                        <ul>
+                            <li><strong>Mois 1 :</strong> Démarrage actions correctives prioritaires</li>
+                            <li><strong>Mois 2 :</strong> 50% des faiblesses corrigées</li>
+                            <li><strong>Mois 3 :</strong> Validation conformité standards export</li>
+                            <li><strong>Mois 6 :</strong> Prêt pour lancement export</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (score >= 45) {
+                recommendations += `
+                    <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5>⚡ STRATÉGIE DÉVELOPPEMENT STRUCTURÉ</h5>
+                        <p><strong>Position :</strong> Potentiel export identifié nécessitant développement ciblé.</p>
+                        
+                        <h6>🔧 PROGRAMME DE DÉVELOPPEMENT (6-12 mois) :</h6>
+                        <ul>
+                            <li><strong>Phase 1 (0-3 mois) :</strong> Fondamentaux - Formation équipe, processus internes</li>
+                            <li><strong>Phase 2 (3-6 mois) :</strong> Conformité - Certifications, mise aux normes</li>
+                            <li><strong>Phase 3 (6-9 mois) :</strong> Adaptation - Produits export, études marché</li>
+                            <li><strong>Phase 4 (9-12 mois) :</strong> Préparation - Tests, partenariats</li>
+                        </ul>
+                        
+                        <p><strong>🎯 OBJECTIF 12 MOIS :</strong> Score export 70%+ et première mission commerciale</p>
+                    </div>
+                `;
+            } else {
+                recommendations += `
+                    <div style="background: #ffebee; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5>🔧 STRATÉGIE CONSOLIDATION FONDAMENTAUX</h5>
+                        <p><strong>Position :</strong> Consolidation interne nécessaire avant export.</p>
+                        
+                        <h6>🏗️ PLAN DE REDRESSEMENT (12-24 mois) :</h6>
+                        <ul>
+                            <li><strong>Phase 1 - Stabilisation (0-6 mois) :</strong> Audit organisation, formation management</li>
+                            <li><strong>Phase 2 - Développement (6-12 mois) :</strong> Investissements, renforcement capacités</li>
+                            <li><strong>Phase 3 - Préparation Export (12-18 mois) :</strong> Formation commerce international</li>
+                        </ul>
+                        
+                        <p><strong>⚠️ CONDITION CRITIQUE :</strong> Ne pas se lancer à l'export avant d'avoir atteint 65% minimum</p>
+                    </div>
+                `;
+            }
+            
+            // Actions prioritaires par dimension faible
+            if (weakDimensions.length > 0) {
+                recommendations += `
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <h5>🎯 ACTIONS PRIORITAIRES PAR DIMENSION</h5>
+                `;
+                
+                weakDimensions.slice(0, 3).forEach(dim => {
+                    const actions = getDetailedActions(dim.name, dim.percentage);
+                    recommendations += `
+                        <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ff9900;">
+                            <h6>${dim.name.replace(/^\d+\.\s*/, '')} (${dim.percentage}%)</h6>
+                            ${actions}
+                        </div>
+                    `;
+                });
+                
+                recommendations += '</div>';
+            }
+            
+            // Budget et ROI
+            const budgetEstimate = score < 50 ? '8-25M FCFA' : score < 70 ? '3-12M FCFA' : '1-5M FCFA';
+            
+            recommendations += `
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                    <h5>💰 INVESTISSEMENT ET RETOUR SUR INVESTISSEMENT</h5>
+                    <p><strong>Budget total estimé :</strong> ${budgetEstimate}</p>
+                    <p><strong>ROI attendu :</strong> 200-400% sur 2-3 ans</p>
+                    <p><strong>Délai d'amortissement :</strong> 12-18 mois pour les entreprises bien préparées</p>
+                    <p><strong>CA export cible :</strong> 15-40% du CA total dans les 2-3 ans</p>
+                </div>
+            `;
+            
+            recommendations += '</div>';
+            return recommendations;
+        }
+
+        // Actions détaillées par dimension
+        function getDetailedActions(dimensionName, percentage) {
+            if (dimensionName.includes('Qualité')) {
+                return `
+                    <p><strong>Actions immédiates :</strong></p>
+                    <ul>
+                        <li>Audit qualité externe par organisme certifié (2 semaines)</li>
+                        <li>Lancement certification ISO 9001 (6-12 mois)</li>
+                        <li>Formation équipe aux standards qualité (40h/personne)</li>
+                        <li>Équipements contrôle qualité selon secteur</li>
+                    </ul>
+                    <p><strong>Budget :</strong> 800K-3M FCFA | <strong>ROI :</strong> Accès marchés premium +30%</p>
+                `;
+            } else if (dimensionName.includes('Prix')) {
+                return `
+                    <p><strong>Actions immédiates :</strong></p>
+                    <ul>
+                        <li>Formation intensive Incoterms 2020 (3 jours)</li>
+                        <li>Développement grille prix export par pays</li>
+                        <li>Ouverture comptes multi-devises (EUR, USD)</li>
+                        <li>Formation crédit documentaire et paiements sécurisés</li>
+                    </ul>
+                    <p><strong>Budget :</strong> 300K-1M FCFA | <strong>ROI :</strong> Sécurisation paiements +150%</p>
+                `;
+            } else if (dimensionName.includes('Financière')) {
+                return `
+                    <p><strong>Actions immédiates :</strong></p>
+                    <ul>
+                        <li>Recherche financements export dédiés (BPIFRANCE, AFD)</li>
+                        <li>Négociation ligne crédit export avec banque</li>
+                        <li>Diversification sources financement</li>
+                        <li>Mise en place reporting financier mensuel</li>
+                    </ul>
+                    <p><strong>Budget :</strong> 500K-2M FCFA | <strong>ROI :</strong> Capacité développement x3-5</p>
+                `;
+            } else if (dimensionName.includes('Expérience')) {
+                return `
+                    <p><strong>Actions immédiates :</strong></p>
+                    <ul>
+                        <li>Recrutement responsable export expérimenté (priorité absolue)</li>
+                        <li>Formation direction aux fondamentaux commerce international</li>
+                        <li>Participation missions économiques et salons</li>
+                        <li>Mentorat par entrepreneur exportateur expérimenté</li>
+                    </ul>
+                    <p><strong>Budget :</strong> 2-5M FCFA/an | <strong>ROI :</strong> Évitement erreurs coûteuses +500%</p>
+                `;
+            } else if (dimensionName.includes('Production')) {
+                return `
+                    <p><strong>Actions immédiates :</strong></p>
+                    <ul>
+                        <li>Audit capacité production vs projections export</li>
+                        <li>Plan investissement équipements selon besoins</li>
+                        <li>Formation équipes techniques et amélioration continue</li>
+                        <li>Certification processus production (ISO, HACCP)</li>
+                    </ul>
+                    <p><strong>Budget :</strong> 3-15M FCFA | <strong>ROI :</strong> Capacité doublée, fiabilité +50%</p>
+                `;
+            } else {
+                return `
+                    <p><strong>Actions recommandées :</strong></p>
+                    <ul>
+                        <li>Audit spécialisé de cette dimension</li>
+                        <li>Plan d'action avec expert externe</li>
+                        <li>Formation équipes concernées</li>
+                        <li>Mise en place outils et processus adaptés</li>
+                    </ul>
+                    <p><strong>Budget :</strong> À définir selon besoins | <strong>ROI :</strong> Amélioration performance export</p>
+                `;
+            }
+        }
+
+        // Système d'alertes
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            // Insérer en haut du contenu
+            const content = document.querySelector('.content');
+            content.insertBefore(alertDiv, content.firstChild);
+            
+            // Supprimer après 5 secondes
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Historique des évaluations
+        function saveToHistory() {
+            const history = JSON.parse(localStorage.getItem('exportToolHistory') || '[]');
+            
+            const entry = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('fr-FR'),
+                time: new Date().toLocaleTimeString('fr-FR'),
+                company: currentData.company,
+                results: currentData.results
+            };
+            
+            history.unshift(entry);
+            
+            // Garder seulement les 10 dernières évaluations
+            if (history.length > 10) {
+                history.splice(10);
+            }
+            
+            localStorage.setItem('exportToolHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('exportToolHistory') || '[]');
+            const container = document.getElementById('historyContainer');
+            
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>Aucun historique disponible.</strong><br>
+                        Vos évaluations apparaîtront ici une fois que vous aurez calculé vos premiers résultats.
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            history.forEach(entry => {
+                let levelColor = '#34a853';
+                if (entry.results.adjustedScore < 45) levelColor = '#ea4335';
+                else if (entry.results.adjustedScore < 65) levelColor = '#ff9900';
+                
+                html += `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <div>
+                                <h4>${entry.company.companyName}</h4>
+                                <p>Secteur: ${entry.company.sector} | ${entry.date} à ${entry.time}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 2em; font-weight: bold; color: ${levelColor};">${entry.results.adjustedScore}%</div>
+                                <div style="color: ${levelColor};">${entry.results.level}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <button class="btn" onclick="loadHistoryEntry(${entry.id})" style="background: #1a73e8;">
+                                👁️ Voir les détails
+                            </button>
+                            <button class="btn" onclick="deleteHistoryEntry(${entry.id})" style="background: #ea4335;">
+                                🗑️ Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function loadHistoryEntry(entryId) {
+            const history = JSON.parse(localStorage.getItem('exportToolHistory') || '[]');
+            const entry = history.find(e => e.id === entryId);
+            
+            if (entry) {
+                currentData.company = entry.company;
+                currentData.results = entry.results;
+                displayResults();
+                
+                // Utiliser l'effet de chargement pour afficher les résultats
+                showSectionWithLoading('results');
+            }
+        }
+
+        function deleteHistoryEntry(entryId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?')) {
+                let history = JSON.parse(localStorage.getItem('exportToolHistory') || '[]');
+                history = history.filter(e => e.id !== entryId);
+                localStorage.setItem('exportToolHistory', JSON.stringify(history));
+                loadHistory();
+                showAlert('Évaluation supprimée avec succès.', 'success');
+            }
+        }
+
+        // Réinitialisation complète de l'application
+        function resetApplication() {
+            const confirmation = confirm(
+                "🔄 RÉINITIALISATION COMPLÈTE\n\n" +
+                "Cette action va effacer :\n" +
+                "• Toutes les informations entreprise\n" +
+                "• Toutes les réponses aux questions\n" +
+                "• Tous les résultats calculés\n" +
+                "• Tout l'historique des évaluations\n\n" +
+                "⚠️ Cette action est IRRÉVERSIBLE !\n\n" +
+                "Voulez-vous vraiment continuer ?"
+            );
+            
+            if (confirmation) {
+                // Vider complètement le localStorage
+                localStorage.removeItem('exportToolData');
+                localStorage.removeItem('exportToolHistory');
+                localStorage.clear();
+                
+                // Réinitialiser les variables globales
+                currentData = {
+                    company: {},
+                    scores: {},
+                    results: null
+                };
+                
+                // Vider tous les formulaires
+                document.getElementById('companyForm').reset();
+                
+                // Réinitialiser les sélections de pays
+                document.querySelectorAll('.multi-select-dropdown input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                updateDisplaySelection('currentMarkets');
+                
+                // Réinitialiser le select du marché cible
+                document.getElementById('targetMarkets').value = '';
+                
+                // Remettre à zéro les boutons de score
+                document.querySelectorAll('.score-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Réinitialiser la progression
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressText').textContent = '0/50 questions complétées';
+                
+                // Vider les résultats
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>Aucun résultat disponible.</strong><br>
+                        Veuillez d'abord compléter l'évaluation dans l'onglet "Évaluation".
+                    </div>
+                `;
+                
+                // Vider le diagnostic détaillé
+                document.getElementById('detailedDiagnosisContainer').innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>Aucun diagnostic détaillé disponible.</strong><br>
+                        Veuillez d'abord compléter l'évaluation et sélectionner un marché cible.
+                    </div>
+                `;
+                
+                // Vider l'historique
+                document.getElementById('historyContainer').innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>Aucun historique disponible.</strong><br>
+                        Vos évaluations apparaîtront ici une fois que vous aurez calculé vos premiers résultats.
+                    </div>
+                `;
+                
+                // Retourner à la première section
+                showSection('company');
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector('[onclick="showSection(\'company\')"]').classList.add('active');
+                
+                // Message de confirmation
+                showAlert('✅ Application réinitialisée avec succès !<br>Vous pouvez maintenant commencer une nouvelle évaluation.', 'success');
+                
+                // Scroll vers le haut
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMultiSelects();
+            loadFromStorage();
+            console.log('Outil de Diagnostic Export loaded successfully!');
+        });
+    </script>
+</body>
+</html>
